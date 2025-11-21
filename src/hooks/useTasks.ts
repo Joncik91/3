@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import type { Task } from '../types';
@@ -18,7 +18,7 @@ export const useTasks = () => {
         localStorage.setItem('nebula-tasks', JSON.stringify(tasks));
     }, [tasks]);
 
-    const addTask = (text: string, category: string) => {
+    const addTask = useCallback((text: string, category: string) => {
         if (!text.trim()) return;
 
         const newTask: Task = {
@@ -29,23 +29,23 @@ export const useTasks = () => {
         };
 
         setTasks(prev => [newTask, ...prev]);
-    };
+    }, []);
 
-    const toggleTask = (id: string) => {
+    const toggleTask = useCallback((id: string) => {
         setTasks(prev => prev.map(t =>
             t.id === id ? { ...t, completed: !t.completed } : t
         ));
-    };
+    }, []);
 
-    const deleteTask = (id: string) => {
+    const deleteTask = useCallback((id: string) => {
         setTasks(prev => prev.filter(t => t.id !== id));
-    };
+    }, []);
 
-    const clearCompleted = () => {
+    const clearCompleted = useCallback(() => {
         setTasks(prev => prev.filter(t => !t.completed));
-    };
+    }, []);
 
-    const handleDragEnd = (event: DragEndEvent) => {
+    const handleDragEnd = useCallback((event: DragEndEvent) => {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
@@ -55,7 +55,7 @@ export const useTasks = () => {
                 return arrayMove(items, oldIndex, newIndex);
             });
         }
-    };
+    }, []);
 
     return {
         tasks,
